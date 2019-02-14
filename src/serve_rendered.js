@@ -146,6 +146,7 @@ module.exports = function(options, repo, params, id, publicUrl, dataResolver) {
   var createPool = function(ratio, min, max) {
     var createRenderer = function(ratio, createCallback) {
       var renderer = new mbgl.Map({
+        mode: "tile",
         ratio: ratio,
         request: function(req, callback) {
           var protocol = req.url.split(':')[0];
