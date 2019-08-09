@@ -27,7 +27,8 @@ Example::
       "maxSize": 2048,
       "pbfAlias": "pbf",
       "serveAllFonts": false,
-      "serveStaticMaps": true
+      "serveStaticMaps": true,
+      "tileMargin": 0
     },
     "styles": {
       "basic": {
