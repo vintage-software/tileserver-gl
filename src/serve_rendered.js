@@ -263,6 +263,18 @@ module.exports = function(options, repo, params, id, publicUrl, dataResolver) {
     styleJSON.glyphs = 'fonts://' + styleJSON.glyphs;
   }
 
+  (styleJSON.layers || []).forEach(function(layer) {
+    if (layer && layer.paint) {
+      // Remove (flatten) 3D buildings
+      if (layer.paint['fill-extrusion-height']) {
+        layer.paint['fill-extrusion-height'] = 0;
+      }
+      if (layer.paint['fill-extrusion-base']) {
+        layer.paint['fill-extrusion-base'] = 0;
+      }
+    }
+  });
+
   var tileJSON = {
     'tilejson': '2.0.0',
     'name': styleJSON.name,
