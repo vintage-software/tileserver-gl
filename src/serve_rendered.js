@@ -419,6 +419,13 @@ module.exports = function(options, repo, params, id, publicUrl, dataResolver) {
         params.width *= 2;
         params.height *= 2;
       }
+      
+      var tileMargin = Math.max(options.tileMargin || 0, 0);
+      if (z > 2 && tileMargin > 0) {
+        params.width += tileMargin * 2 * scale;
+        params.height += tileMargin * 2 * scale;
+      }
+
       renderer.render(params, function(err, data) {
         pool.release(renderer);
         if (err) {
@@ -433,6 +440,10 @@ module.exports = function(options, repo, params, id, publicUrl, dataResolver) {
             channels: 4
           }
         });
+        
+        if (z > 2 && tileMargin > 0) {
+            image.extract({ left: tileMargin * scale, top: tileMargin * scale, width: width * scale, height: height * scale });
+        }
 
         if (z == 0) {
           // HACK: when serving zoom 0, resize the 0 tile from 512 to 256
