@@ -1,47 +1,47 @@
 'use strict';
 
-var fs = require('fs'),
-    path = require('path'),
-    zlib = require('zlib');
+const fs = require('fs');
+const path = require('path');
+const zlib = require('zlib');
 
-var clone = require('clone'),
-    express = require('express'),
-    mbtiles = require('@mapbox/mbtiles'),
-    pbf = require('pbf'),
-    VectorTile = require('@mapbox/vector-tile').VectorTile;
+const clone = require('clone');
+const express = require('express');
+const MBTiles = require('@mapbox/mbtiles');
+const Pbf = require('pbf');
+const VectorTile = require('@mapbox/vector-tile').VectorTile;
 
-var tileshrinkGl;
+let tileshrinkGl;
 try {
   tileshrinkGl = require('tileshrink-gl');
   global.addStyleParam = true;
 } catch (e) {}
 
-var utils = require('./utils');
+const utils = require('./utils');
 
-module.exports = function(options, repo, params, id, styles, publicUrl) {
-  var app = express().disable('x-powered-by');
+module.exports = (options, repo, params, id, styles, publicUrl) => {
+  const app = express().disable('x-powered-by');
 
-  var mbtilesFile = path.resolve(options.paths.mbtiles, params.mbtiles);
-  var tileJSON = {
+  const mbtilesFile = path.resolve(options.paths.mbtiles, params.mbtiles);
+  let tileJSON = {
     'tiles': params.domains || options.domains
   };
 
-  var shrinkers = {};
+  const shrinkers = {};
 
   repo[id] = tileJSON;
 
-  var mbtilesFileStats = fs.statSync(mbtilesFile);
-  if (!mbtilesFileStats.isFile() || mbtilesFileStats.size == 0) {
-    throw Error('Not valid MBTiles file: ' + mbtilesFile);
+  const mbtilesFileStats = fs.statSync(mbtilesFile);
+  if (!mbtilesFileStats.isFile() || mbtilesFileStats.size === 0) {
+    throw Error(`Not valid MBTiles file: ${mbtilesFile}`);
   }
-  var source;
-  var sourceInfoPromise = new Promise(function(resolve, reject) {
-    source = new mbtiles(mbtilesFile, function(err) {
+  let source;
+  const sourceInfoPromise = new Promise((resolve, reject) => {
+    source = new MBTiles(mbtilesFile, err => {
       if (err) {
         reject(err);
         return;
       }
-      source.getInfo(function(err, info) {
+      source.getInfo((err, info) => {
         if (err) {
           reject(err);
           return;
@@ -67,18 +67,18 @@ module.exports = function(options, repo, params, id, styles, publicUrl) {
     });
   });
 
-  var tilePattern = '/' + id + '/:z(\\d+)/:x(\\d+)/:y(\\d+).:format([\\w.]+)';
+  const tilePattern = `/${id}/:z(\\d+)/:x(\\d+)/:y(\\d+).:format([\\w.]+)`;
 
-  app.get(tilePattern, function(req, res, next) {
-    var z = req.params.z | 0,
-        x = req.params.x | 0,
-        y = req.params.y | 0;
-    var format = req.params.format;
-    if (format == options.pbfAlias) {
+  app.get(tilePattern, (req, res, next) => {
+    const z = req.params.z | 0;
+    const x = req.params.x | 0;
+    const y = req.params.y | 0;
+    let format = req.params.format;
+    if (format === options.pbfAlias) {
       format = 'pbf';
     }
-    if (format != tileJSON.format &&
-        !(format == 'geojson' && tileJSON.format == 'pbf')) {
+    if (format !== tileJSON.format &&
+        !(format === 'geojson' && tileJSON.format === 'pbf')) {
       return res.status(404).send('Invalid format');
     }
     if (z < tileJSON.minzoom || 0 || x < 0 || y < 0 ||
@@ -86,7 +86,8 @@ module.exports = function(options, repo, params, id, styles, publicUrl) {
         x >= Math.pow(2, z) || y >= Math.pow(2, z)) {
       return res.status(404).send('Out of bounds');
     }
-    source.getTile(z, x, y, function(err, data, headers) {
+    source.getTile(z, x, y, (err, data, headers) => {
+      let isGzipped;
       if (err) {
         if (/does not exist/.test(err.message)) {
           return res.status(204).send();
@@ -97,20 +98,20 @@ module.exports = function(options, repo, params, id, styles, publicUrl) {
         if (data == null) {
           return res.status(404).send('Not found');
         } else {
-          if (tileJSON['format'] == 'pbf') {
-            var isGzipped = data.slice(0,2).indexOf(
-                new Buffer([0x1f, 0x8b])) === 0;
-            var style = req.query.style;
+          if (tileJSON['format'] === 'pbf') {
+            isGzipped = data.slice(0, 2).indexOf(
+              new Buffer([0x1f, 0x8b])) === 0;
+            const style = req.query.style;
             if (style && tileshrinkGl) {
               if (!shrinkers[style]) {
-                var styleJSON = styles[style];
+                const styleJSON = styles[style];
                 if (styleJSON) {
-                  var sourceName = null;
-                  for (var sourceName_ in styleJSON.sources) {
-                    var source = styleJSON.sources[sourceName_];
+                  let sourceName = null;
+                  for (let sourceName_ in styleJSON.sources) {
+                    const source = styleJSON.sources[sourceName_];
                     if (source &&
-                        source.type == 'vector' &&
-                        source.url.endsWith('/' + id + '.json')) {
+                        source.type === 'vector' &&
+                        source.url.endsWith(`/${id}.json`)) {
                       sourceName = sourceName_;
                     }
                   }
@@ -134,9 +135,9 @@ module.exports = function(options, repo, params, id, styles, publicUrl) {
               data = options.dataDecoratorFunc(id, 'data', data, z, x, y);
             }
           }
-          if (format == 'pbf') {
+          if (format === 'pbf') {
             headers['Content-Type'] = 'application/x-protobuf';
-          } else if (format == 'geojson') {
+          } else if (format === 'geojson') {
             headers['Content-Type'] = 'application/json';
 
             if (isGzipped) {
@@ -144,16 +145,16 @@ module.exports = function(options, repo, params, id, styles, publicUrl) {
               isGzipped = false;
             }
 
-            var tile = new VectorTile(new pbf(data));
-            var geojson = {
+            const tile = new VectorTile(new Pbf(data));
+            const geojson = {
               "type": "FeatureCollection",
               "features": []
             };
-            for (var layerName in tile.layers) {
-              var layer = tile.layers[layerName];
-              for (var i = 0; i < layer.length; i++) {
-                var feature = layer.feature(i);
-                var featureGeoJSON = feature.toGeoJSON(x, y, z);
+            for (let layerName in tile.layers) {
+              const layer = tile.layers[layerName];
+              for (let i = 0; i < layer.length; i++) {
+                const feature = layer.feature(i);
+                const featureGeoJSON = feature.toGeoJSON(x, y, z);
                 featureGeoJSON.properties.layer = layerName;
                 geojson.features.push(featureGeoJSON);
               }
@@ -175,16 +176,14 @@ module.exports = function(options, repo, params, id, styles, publicUrl) {
     });
   });
 
-  app.get('/' + id + '.json', function(req, res, next) {
-    var info = clone(tileJSON);
+  app.get(`/${id}.json`, (req, res, next) => {
+    const info = clone(tileJSON);
     info.tiles = utils.getTileUrls(req, info.tiles,
-                                   'data/' + id, info.format, publicUrl, {
+                                   `data/${id}`, info.format, publicUrl, {
                                      'pbf': options.pbfAlias
                                    });
     return res.send(info);
   });
 
-  return sourceInfoPromise.then(function() {
-    return app;
-  });
+  return sourceInfoPromise.then(() => app);
 };
