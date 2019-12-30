@@ -90,7 +90,9 @@ const startServer = (configPath, config) => {
 };
 
 const startWithMBTiles = (mbtilesFile) => {
-  console.log(`Automatically creating config file for ${mbtilesFile}`);
+  console.log(`[INFO] Automatically creating config file for ${mbtilesFile}`);
+  console.log(`[INFO] Only a basic preview style will be used.`);
+  console.log(`[INFO] See documentation to learn how to create config.json file.`);
 
   mbtilesFile = path.resolve(process.cwd(), mbtilesFile);
 
@@ -131,9 +133,8 @@ const startWithMBTiles = (mbtilesFile) => {
 
       if (info.format === 'pbf' &&
         info.name.toLowerCase().indexOf('openmaptiles') > -1) {
-        const omtV = (info.version || '').split('.');
 
-        config['data'][`v${omtV[0]}`] = {
+        config['data'][`v3`] = {
           "mbtiles": path.basename(mbtilesFile)
         };
 
@@ -143,34 +144,12 @@ const startWithMBTiles = (mbtilesFile) => {
           const styleFileRel = styleName + '/style.json';
           const styleFile = path.resolve(styleDir, 'styles', styleFileRel);
           if (fs.existsSync(styleFile)) {
-            const styleJSON = require(styleFile);
-            const omtVersionCompatibility =
-              ((styleJSON || {}).metadata || {})['openmaptiles:version'] || 'x';
-            const m = omtVersionCompatibility.toLowerCase().split('.');
-
-            const isCompatible = !(
-              m[0] !== 'x' && (
-                m[0] !== omtV[0] || (
-                  (m[1] || 'x') !== 'x' && (
-                    m[1] !== omtV[1] || (
-                      (m[2] || 'x') !== 'x' &&
-                      m[2] !== omtV[2]
-                    )
-                  )
-                )
-              )
-            );
-
-            if (isCompatible) {
-              config['styles'][styleName] = {
-                "style": styleFileRel,
-                "tilejson": {
-                  "bounds": bounds
-                }
-              };
-            } else {
-              console.log(`Style ${styleName} requires OpenMapTiles version ${omtVersionCompatibility} but mbtiles is version ${info.version}`);
-            }
+            config['styles'][styleName] = {
+              "style": styleFileRel,
+              "tilejson": {
+                "bounds": bounds
+              }
+            };
           }
         }
       } else {
@@ -216,7 +195,8 @@ fs.stat(path.resolve(opts.config), (err, stats) => {
         const url = 'https://github.com/klokantech/tileserver-gl/releases/download/v1.3.0/zurich_switzerland.mbtiles';
         const filename = 'zurich_switzerland.mbtiles';
         const stream = fs.createWriteStream(filename);
-        console.log(`Downloading sample data (${filename}) from ${url}`);
+        console.log(`No MBTiles found`);
+        console.log(`[DEMO] Downloading sample data (${filename}) from ${url}`);
         stream.on('finish', () => startWithMBTiles(filename));
         return request.get(url).pipe(stream);
       }
