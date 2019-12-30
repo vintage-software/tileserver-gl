@@ -424,8 +424,8 @@ module.exports = function(options, repo, params, id, publicUrl, dataResolver) {
 
       var tileMargin = Math.max(options.tileMargin || 0, 0);
       if (z > 2 && tileMargin > 0) {
-        params.width += tileMargin * 2 * scale;
-        params.height += tileMargin * 2 * scale;
+        params.width += tileMargin * 2;
+        params.height += tileMargin * 2;
       }
 
       renderer.render(params, function(err, data) {
