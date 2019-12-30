@@ -2,7 +2,7 @@
 # Simply run "docker build -f Dockerfile_test ."
 # WARNING: sometimes it fails with a core dumped exception
 
-FROM node:6-stretch
+FROM node:10-stretch
 MAINTAINER Petr Sloup <petr.sloup@klokantech.com>
 
 RUN apt-get -qq update \

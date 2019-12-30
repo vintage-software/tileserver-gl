@@ -1,4 +1,4 @@
-FROM node:6.15.1-stretch
+FROM node:10-stretch
 MAINTAINER Petr Sloup <petr.sloup@klokantech.com>
 
 ENV NODE_ENV="production"

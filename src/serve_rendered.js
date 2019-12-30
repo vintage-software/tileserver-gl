@@ -11,8 +11,9 @@ var advancedPool = require('advanced-pool'),
 // see https://github.com/lovell/sharp/issues/371
 var sharp = require('sharp');
 
-var Canvas = require('canvas'),
-    clone = require('clone'),
+const { createCanvas } = require('canvas');
+
+var clone = require('clone'),
     Color = require('color'),
     express = require('express'),
     mercator = new (require('@mapbox/sphericalmercator'))(),
@@ -419,7 +420,7 @@ module.exports = function(options, repo, params, id, publicUrl, dataResolver) {
         params.width *= 2;
         params.height *= 2;
       }
-      
+
       var tileMargin = Math.max(options.tileMargin || 0, 0);
       if (z > 2 && tileMargin > 0) {
         params.width += tileMargin * 2 * scale;
@@ -440,7 +441,7 @@ module.exports = function(options, repo, params, id, publicUrl, dataResolver) {
             channels: 4
           }
         });
-        
+
         if (z > 2 && tileMargin > 0) {
             image.extract({ left: tileMargin * scale, top: tileMargin * scale, width: width * scale, height: height * scale });
         }
@@ -451,10 +452,10 @@ module.exports = function(options, repo, params, id, publicUrl, dataResolver) {
         }
 
         if (opt_overlay) {
-          image.overlayWith(opt_overlay);
+          image.composite([{ input: opt_overlay }]);
         }
         if (watermark) {
-          var canvas = new Canvas(scale * width, scale * height);
+          var canvas = createCanvas(scale * width, scale * height);
           var ctx = canvas.getContext('2d');
           ctx.scale(scale, scale);
           ctx.font = '10px sans-serif';
@@ -464,7 +465,7 @@ module.exports = function(options, repo, params, id, publicUrl, dataResolver) {
           ctx.fillStyle = 'rgba(0,0,0,.4)';
           ctx.fillText(watermark, 5, height - 5);
 
-          image.overlayWith(canvas.toBuffer());
+          image.composite([{ input: canvas.toBuffer() }]);
         }
 
         var formatQuality = (params.formatQuality || {})[format] ||
@@ -561,7 +562,7 @@ module.exports = function(options, repo, params, id, publicUrl, dataResolver) {
       center[1] -= minEdge;
     }
 
-    var canvas = new Canvas(scale * w, scale * h);
+    var canvas = createCanvas(scale * w, scale * h);
     var ctx = canvas.getContext('2d');
     ctx.scale(scale, scale);
     if (bearing) {
