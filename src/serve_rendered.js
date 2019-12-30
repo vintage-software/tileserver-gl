@@ -142,6 +142,7 @@ module.exports = (options, repo, params, id, publicUrl, dataResolver) => {
   const createPool = (ratio, min, max) => {
     const createRenderer = (ratio, createCallback) => {
       const renderer = new mbgl.Map({
+        mode: "tile",
         ratio: ratio,
         request: (req, callback) => {
           const protocol = req.url.split(':')[0];
@@ -415,8 +416,8 @@ module.exports = (options, repo, params, id, publicUrl, dataResolver) => {
 
       const tileMargin = Math.max(options.tileMargin || 0, 0);
       if (z > 2 && tileMargin > 0) {
-        params.width += tileMargin * 2 * scale;
-        params.height += tileMargin * 2 * scale;
+        params.width += tileMargin * 2;
+        params.height += tileMargin * 2;
       }
 
       renderer.render(params, (err, data) => {
