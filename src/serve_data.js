@@ -92,7 +92,7 @@ module.exports = (options, repo, params, id, styles, publicUrl) => {
         } else {
           if (tileJSON['format'] === 'pbf') {
             isGzipped = data.slice(0, 2).indexOf(
-              new Buffer([0x1f, 0x8b])) === 0;
+              Buffer.from([0x1f, 0x8b])) === 0;
             if (options.dataDecoratorFunc) {
               if (isGzipped) {
                 data = zlib.unzipSync(data);
