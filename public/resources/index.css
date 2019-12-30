@@ -23,6 +23,9 @@ body{
   font-family:'OpenSans', sans-serif, Arial;
   font-size: 14px;
   margin:0;
+  background-repeat:no-repeat !important;
+  background-size: contain !important;
+  background-image: url(/images/header-map-1280px.png);
 }
 a{
   color: #499DCE;
@@ -151,28 +154,6 @@ footer a {
 .details h3, .identifier {
   max-width: 550px;
   word-break: break-all;
-}
-
-/* body background image */
-body {
-  background-repeat:no-repeat !important;
-  background-size: contain !important;
-  background-image: url(/images/header-map-640px.png);
-}
-@media only screen and (min-width: 641px) {
-  body {
-    background-image: url(/images/header-map-1280px.png);
-  }
-}
-@media only screen and (min-width: 1281px) {
-  body {
-    background-image: url(/images/header-map-1600px.png);
-  }
-}
-@media only screen and (min-width: 1601px) {
-  body {
-    background-image: url(/images/header-map-2560px.png);
-  }
 }
 
 /* Responsive */
