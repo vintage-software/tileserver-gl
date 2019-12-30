@@ -10,12 +10,6 @@ const MBTiles = require('@mapbox/mbtiles');
 const Pbf = require('pbf');
 const VectorTile = require('@mapbox/vector-tile').VectorTile;
 
-let tileshrinkGl;
-try {
-  tileshrinkGl = require('tileshrink-gl');
-  global.addStyleParam = true;
-} catch (e) {}
-
 const utils = require('./utils');
 
 module.exports = (options, repo, params, id, styles, publicUrl) => {
@@ -25,8 +19,6 @@ module.exports = (options, repo, params, id, styles, publicUrl) => {
   let tileJSON = {
     'tiles': params.domains || options.domains
   };
-
-  const shrinkers = {};
 
   repo[id] = tileJSON;
 
@@ -101,32 +93,6 @@ module.exports = (options, repo, params, id, styles, publicUrl) => {
           if (tileJSON['format'] === 'pbf') {
             isGzipped = data.slice(0, 2).indexOf(
               new Buffer([0x1f, 0x8b])) === 0;
-            const style = req.query.style;
-            if (style && tileshrinkGl) {
-              if (!shrinkers[style]) {
-                const styleJSON = styles[style];
-                if (styleJSON) {
-                  let sourceName = null;
-                  for (let sourceName_ in styleJSON.sources) {
-                    const source = styleJSON.sources[sourceName_];
-                    if (source &&
-                        source.type === 'vector' &&
-                        source.url.endsWith(`/${id}.json`)) {
-                      sourceName = sourceName_;
-                    }
-                  }
-                  shrinkers[style] = tileshrinkGl.createPBFShrinker(styleJSON, sourceName);
-                }
-              }
-              if (shrinkers[style]) {
-                if (isGzipped) {
-                  data = zlib.unzipSync(data);
-                  isGzipped = false;
-                }
-                data = shrinkers[style](data, z, tileJSON.maxzoom);
-                //console.log(shrinkers[style].getStats());
-              }
-            }
             if (options.dataDecoratorFunc) {
               if (isGzipped) {
                 data = zlib.unzipSync(data);

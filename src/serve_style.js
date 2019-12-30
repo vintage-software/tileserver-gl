@@ -64,14 +64,11 @@ module.exports = (options, repo, params, id, publicUrl, reportTiles, reportFont)
   repo[id] = styleJSON;
 
   app.get(`/${id}/style.json`, (req, res, next) => {
-    const fixUrl = (url, opt_nokey, opt_nostyle) => {
+    const fixUrl = (url, opt_nokey) => {
       if (!url || (typeof url !== 'string') || url.indexOf('local://') !== 0) {
         return url;
       }
       const queryParams = [];
-      if (!opt_nostyle && global.addStyleParam) {
-        queryParams.push(`style=${id}`);
-      }
       if (!opt_nokey && req.query.key) {
         queryParams.unshift(`key=${req.query.key}`);
       }
@@ -90,10 +87,10 @@ module.exports = (options, repo, params, id, publicUrl, reportTiles, reportFont)
     }
     // mapbox-gl-js viewer cannot handle sprite urls with query
     if (styleJSON_.sprite) {
-      styleJSON_.sprite = fixUrl(styleJSON_.sprite, true, true);
+      styleJSON_.sprite = fixUrl(styleJSON_.sprite, true);
     }
     if (styleJSON_.glyphs) {
-      styleJSON_.glyphs = fixUrl(styleJSON_.glyphs, false, true);
+      styleJSON_.glyphs = fixUrl(styleJSON_.glyphs, false);
     }
     return res.send(styleJSON_);
   });
