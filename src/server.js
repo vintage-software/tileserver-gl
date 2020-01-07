@@ -103,6 +103,17 @@ function start(opts) {
     app.use(cors());
   }
 
+  app.use('/data/', serve_data.init(options, serving.data));
+  app.use('/styles/', serve_style.init(options, serving.styles));
+  if (serve_rendered) {
+    startupPromises.push(
+      serve_rendered.init(options, serving.rendered)
+        .then(sub => {
+          app.use('/styles/', sub);
+        })
+    );
+  }
+
   for (const id of Object.keys(config.styles || {})) {
     const item = config.styles[id];
     if (!item.style || item.style.length === 0) {
@@ -111,7 +122,7 @@ function start(opts) {
     }
 
     if (item.serve_data !== false) {
-      startupPromises.push(serve_style(options, serving.styles, item, id, opts.publicUrl,
+      serve_style.add(options, serving.styles, item, id, opts.publicUrl,
         (mbtiles, fromData) => {
           let dataItemId;
           for (const id of Object.keys(data)) {
@@ -140,27 +151,21 @@ function start(opts) {
           }
         }, font => {
           serving.fonts[font] = true;
-        }).then(sub => {
-          app.use('/styles/', sub);
-        }));
+        });
     }
     if (item.serve_rendered !== false) {
       if (serve_rendered) {
-        startupPromises.push(
-          serve_rendered(options, serving.rendered, item, id, opts.publicUrl,
-            mbtiles => {
-              let mbtilesFile;
-              for (const id of Object.keys(data)) {
-                if (id === mbtiles) {
-                  mbtilesFile = data[id].mbtiles;
-                }
+        startupPromises.push(serve_rendered.add(options, serving.rendered, item, id, opts.publicUrl,
+          mbtiles => {
+            let mbtilesFile;
+            for (const id of Object.keys(data)) {
+              if (id === mbtiles) {
+                mbtilesFile = data[id].mbtiles;
               }
-              return mbtilesFile;
             }
-          ).then(sub => {
-            app.use('/styles/', sub);
-          })
-        );
+            return mbtilesFile;
+          }
+        ));
       } else {
         item.serve_rendered = false;
       }
@@ -181,9 +186,7 @@ function start(opts) {
     }
 
     startupPromises.push(
-      serve_data(options, serving.data, item, id, serving.styles, opts.publicUrl).then(sub => {
-        app.use('/data/', sub);
-      })
+      serve_data.add(options, serving.data, item, id, opts.publicUrl)
     );
   }
 
@@ -191,7 +194,7 @@ function start(opts) {
     const result = [];
     const query = req.query.key ? (`?key=${req.query.key}`) : '';
     for (const id of Object.keys(serving.styles)) {
-      const styleJSON = serving.styles[id];
+      const styleJSON = serving.styles[id].styleJSON;
       result.push({
         version: styleJSON.version,
         name: styleJSON.name,
@@ -204,9 +207,10 @@ function start(opts) {
 
   const addTileJSONs = (arr, req, type) => {
     for (const id of Object.keys(serving[type])) {
-      const info = clone(serving[type][id]);
+      let info = clone(serving[type][id]);
       let path = '';
       if (type === 'rendered') {
+        info = info.tileJSON;
         path = `styles/${id}`;
       } else {
         path = `${type}/${id}`;
@@ -283,7 +287,7 @@ function start(opts) {
       style.serving_data = serving.styles[id];
       style.serving_rendered = serving.rendered[id];
       if (style.serving_rendered) {
-        const center = style.serving_rendered.center;
+        const center = style.serving_rendered.tileJSON.center;
         if (center) {
           style.viewer_hash = `#${center[2]}/${center[1].toFixed(5)}/${center[0].toFixed(5)}`;
 
@@ -292,8 +296,8 @@ function start(opts) {
         }
 
         style.xyz_link = utils.getTileUrls(
-          req, style.serving_rendered.tiles,
-          `styles/${id}`, style.serving_rendered.format, opts.publicUrl)[0];
+          req, style.serving_rendered.tileJSON.tiles,
+          `styles/${id}`, style.serving_rendered.tileJSON.format, opts.publicUrl)[0];
       }
     }
     const data = clone(serving.data || {});
