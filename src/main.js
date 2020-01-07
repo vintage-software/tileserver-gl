@@ -2,6 +2,8 @@
 
 'use strict';
 
+require = require('esm')(module);
+
 const fs = require('fs');
 const path = require('path');
 const request = require('request');

@@ -5,6 +5,7 @@ const fs = require('fs');
 
 const clone = require('clone');
 const express = require('express');
+import {validate} from '@mapbox/mapbox-gl-style-spec';
 
 const utils = require('./utils');
 
@@ -77,13 +78,24 @@ module.exports = {
   },
   add: (options, repo, params, id, publicUrl, reportTiles, reportFont) => {
     const styleFile = path.resolve(options.paths.styles, params.style);
-    let styleJSON;
+
+    let styleFileData;
     try {
-      styleJSON = JSON.parse(fs.readFileSync(styleFile));
+      styleFileData = fs.readFileSync(styleFile);
     } catch (e) {
-      console.log('Error parsing style file');
+      console.log('Error reading style file');
       return false;
     }
+
+    let validationErrors = validate(styleFileData);
+    if (validationErrors.length > 0) {
+      console.log(`The file "${params.style}" is not valid a valid style file:`);
+      for (const err of validationErrors) {
+        console.log(`${err.line}: ${err.message}`);
+      }
+      return false;
+    }
+    let styleJSON = JSON.parse(styleFileData);
 
     for (const name of Object.keys(styleJSON.sources)) {
       const source = styleJSON.sources[name];
