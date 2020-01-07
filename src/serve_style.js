@@ -72,10 +72,19 @@ module.exports = {
 
     return app;
   },
+  remove: (repo, id) => {
+    delete repo[id];
+  },
   add: (options, repo, params, id, publicUrl, reportTiles, reportFont) => {
     const styleFile = path.resolve(options.paths.styles, params.style);
+    let styleJSON;
+    try {
+      styleJSON = JSON.parse(fs.readFileSync(styleFile));
+    } catch (e) {
+      console.log('Error parsing style file');
+      return false;
+    }
 
-    const styleJSON = clone(require(styleFile));
     for (const name of Object.keys(styleJSON.sources)) {
       const source = styleJSON.sources[name];
       const url = source.url;
@@ -92,6 +101,9 @@ module.exports = {
           }
         }
         const identifier = reportTiles(mbtilesFile, fromData);
+        if (!identifier) {
+          return false;
+        }
         source.url = `local://data/${identifier}.json`;
       }
     }
@@ -128,5 +140,7 @@ module.exports = {
       publicUrl,
       name: styleJSON.name
     };
+
+    return true;
   }
 };

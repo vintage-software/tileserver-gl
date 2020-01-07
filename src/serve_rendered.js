@@ -663,7 +663,12 @@ module.exports = {
 
     const styleFile = params.style;
     const styleJSONPath = path.resolve(options.paths.styles, styleFile);
-    styleJSON = clone(require(styleJSONPath));
+    try {
+      styleJSON = JSON.parse(fs.readFileSync(styleJSONPath));
+    } catch (e) {
+      console.log('Error parsing style file');
+      return false;
+    }
 
     if (styleJSON.sprite && !httpTester.test(styleJSON.sprite)) {
       styleJSON.sprite = 'sprites://' +
@@ -798,5 +803,14 @@ module.exports = {
     });
 
     return Promise.all([renderersReadyPromise]);
-  }
+  },
+  remove: (repo, id) => {
+    let item = repo[id];
+    if (item) {
+      item.map.renderers.forEach(pool => {
+        pool.close();
+      });
+    }
+    delete repo[id];
+  },
 };
