@@ -7,6 +7,7 @@ process.env.UV_THREADPOOL_SIZE =
 const fs = require('fs');
 const path = require('path');
 
+const chokidar = require('chokidar');
 const clone = require('clone');
 const cors = require('cors');
 const enableShutdown = require('http-shutdown');
@@ -14,7 +15,6 @@ const express = require('express');
 const handlebars = require('handlebars');
 const mercator = new (require('@mapbox/sphericalmercator'))();
 const morgan = require('morgan');
-const watch = require('node-watch');
 
 const packageJson = require('../package');
 const serve_font = require('./serve_font');
@@ -217,20 +217,24 @@ function start(opts) {
       }
     });
 
-    watch(options.paths.styles,
-      { persistent: false, filter: /\.json$/ },
+    const watcher = chokidar.watch(path.join(options.paths.styles, '*.json'),
+      {
+      });
+    watcher.on('all',
       (eventType, filename) => {
-        let id = path.basename(filename, '.json');
-        console.log(`Style "${id}" changed, updating...`);
+        if (filename) {
+          let id = path.basename(filename, '.json');
+          console.log(`Style "${id}" changed, updating...`);
 
-        serve_style.remove(serving.styles, id);
-        serve_rendered.remove(serving.rendered, id);
+          serve_style.remove(serving.styles, id);
+          serve_rendered.remove(serving.rendered, id);
 
-        if (eventType == "update") {
-          let item = {
-            style: filename
-          };
-          addStyle(id, item, false, false);
+          if (eventType == "add" || eventType == "change") {
+            let item = {
+              style: filename
+            };
+            addStyle(id, item, false, false);
+          }
         }
       });
   }
