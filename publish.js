@@ -28,6 +28,8 @@ delete packageJson.dependencies['sharp'];
 delete packageJson.optionalDependencies;
 delete packageJson.devDependencies;
 
+packageJson.engines.node = '>= 10';
+
 var str = JSON.stringify(packageJson, undefined, 2);
 fs.writeFileSync('light/package.json', str);
 fs.renameSync('light/README_light.md', 'light/README.md');
