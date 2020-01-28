@@ -427,6 +427,22 @@ module.exports = (options, repo, params, id, publicUrl, dataResolver) => {
           return;
         }
 
+        // Fix semi-transparent outlines on raw, premultiplied input
+        // https://github.com/klokantech/tileserver-gl/issues/350#issuecomment-477857040
+        for (var i = 0; i < data.length; i += 4) {
+          var alpha = data[i + 3];
+          var norm = alpha / 255;
+          if (alpha === 0) {
+            data[i] = 0;
+            data[i + 1] = 0;
+            data[i + 2] = 0;
+          } else {
+            data[i] = data[i] / norm;
+            data[i + 1] = data[i + 1] / norm;
+            data[i + 2] = data[i + 2] / norm;
+          }
+        }
+
         const image = sharp(data, {
           raw: {
             width: params.width * scale,
