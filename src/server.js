@@ -351,11 +351,12 @@ function start(opts) {
     const data = clone(serving.data || {});
     for (const id of Object.keys(data)) {
       const data_ = data[id];
-      const center = data_.center;
+      const tilejson = data[id].tileJSON;
+      const center = tilejson.center;
       if (center) {
         data_.viewer_hash = `#${center[2]}/${center[1].toFixed(5)}/${center[0].toFixed(5)}`;
       }
-      data_.is_vector = data_.format === 'pbf';
+      data_.is_vector = tilejson.format === 'pbf';
       if (!data_.is_vector) {
         if (center) {
           const centerPx = mercator.px([center[0], center[1]], center[2]);
@@ -363,7 +364,7 @@ function start(opts) {
         }
 
         data_.xyz_link = utils.getTileUrls(
-          req, data_.tiles, `data/${id}`, data_.format, opts.publicUrl, {
+          req, tilejson.tiles, `data/${id}`, tilejson.format, opts.publicUrl, {
             'pbf': options.pbfAlias
           })[0];
       }
@@ -427,7 +428,7 @@ function start(opts) {
       return null;
     }
     data.id = id;
-    data.is_vector = data.format === 'pbf';
+    data.is_vector = data.tileJSON.format === 'pbf';
     return data;
   });
 
