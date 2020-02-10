@@ -7,6 +7,7 @@ process.env.UV_THREADPOOL_SIZE =
 const fs = require('fs');
 const path = require('path');
 
+const chokidar = require('chokidar');
 const clone = require('clone');
 const cors = require('cors');
 const enableShutdown = require('http-shutdown');
@@ -103,15 +104,21 @@ function start(opts) {
     app.use(cors());
   }
 
-  for (const id of Object.keys(config.styles || {})) {
-    const item = config.styles[id];
-    if (!item.style || item.style.length === 0) {
-      console.log(`Missing "style" property for ${id}`);
-      continue;
-    }
+  app.use('/data/', serve_data.init(options, serving.data));
+  app.use('/styles/', serve_style.init(options, serving.styles));
+  if (serve_rendered) {
+    startupPromises.push(
+      serve_rendered.init(options, serving.rendered)
+        .then(sub => {
+          app.use('/styles/', sub);
+        })
+    );
+  }
 
+  let addStyle = (id, item, allowMoreData, reportFonts) => {
+    let success = true;
     if (item.serve_data !== false) {
-      startupPromises.push(serve_style(options, serving.styles, item, id, opts.publicUrl,
+        success = serve_style.add(options, serving.styles, item, id, opts.publicUrl,
         (mbtiles, fromData) => {
           let dataItemId;
           for (const id of Object.keys(data)) {
@@ -127,44 +134,52 @@ function start(opts) {
           }
           if (dataItemId) { // mbtiles exist in the data config
             return dataItemId;
-          } else if (fromData) {
-            console.log(`ERROR: data "${mbtiles}" not found!`);
-            process.exit(1);
           } else {
-            let id = mbtiles.substr(0, mbtiles.lastIndexOf('.')) || mbtiles;
-            while (data[id]) id += '_';
-            data[id] = {
-              'mbtiles': mbtiles
-            };
-            return id;
+            if (fromData || !allowMoreData) {
+              console.log(`ERROR: style "${file.name}" using unknown mbtiles "${mbtiles}"! Skipping...`);
+              return undefined;
+            } else {
+              let id = mbtiles.substr(0, mbtiles.lastIndexOf('.')) || mbtiles;
+              while (data[id]) id += '_';
+              data[id] = {
+                'mbtiles': mbtiles
+              };
+              return id;
+            }
           }
         }, font => {
-          serving.fonts[font] = true;
-        }).then(sub => {
-          app.use('/styles/', sub);
-        }));
+          if (reportFonts) {
+            serving.fonts[font] = true;
+          }
+        });
     }
-    if (item.serve_rendered !== false) {
+    if (success && item.serve_rendered !== false) {
       if (serve_rendered) {
-        startupPromises.push(
-          serve_rendered(options, serving.rendered, item, id, opts.publicUrl,
-            mbtiles => {
-              let mbtilesFile;
-              for (const id of Object.keys(data)) {
-                if (id === mbtiles) {
-                  mbtilesFile = data[id].mbtiles;
-                }
+        startupPromises.push(serve_rendered.add(options, serving.rendered, item, id, opts.publicUrl,
+          mbtiles => {
+            let mbtilesFile;
+            for (const id of Object.keys(data)) {
+              if (id === mbtiles) {
+                mbtilesFile = data[id].mbtiles;
               }
-              return mbtilesFile;
             }
-          ).then(sub => {
-            app.use('/styles/', sub);
-          })
-        );
+            return mbtilesFile;
+          }
+        ));
       } else {
         item.serve_rendered = false;
       }
     }
+  };
+
+  for (const id of Object.keys(config.styles || {})) {
+    const item = config.styles[id];
+    if (!item.style || item.style.length === 0) {
+      console.log(`Missing "style" property for ${id}`);
+      continue;
+    }
+
+    addStyle(id, item, true, true);
   }
 
   startupPromises.push(
@@ -181,17 +196,54 @@ function start(opts) {
     }
 
     startupPromises.push(
-      serve_data(options, serving.data, item, id, serving.styles, opts.publicUrl).then(sub => {
-        app.use('/data/', sub);
-      })
+      serve_data.add(options, serving.data, item, id, opts.publicUrl)
     );
+  }
+
+  if (options.serveAllStyles) {
+    fs.readdir(options.paths.styles, {withFileTypes: true}, (err, files) => {
+      if (err) {
+        return;
+      }
+      for (const file of files) {
+        if (file.isFile() &&
+            path.extname(file.name).toLowerCase() == '.json') {
+          let id = path.basename(file.name, '.json');
+          let item = {
+            style: file.name
+          };
+          addStyle(id, item, false, false);
+        }
+      }
+    });
+
+    const watcher = chokidar.watch(path.join(options.paths.styles, '*.json'),
+      {
+      });
+    watcher.on('all',
+      (eventType, filename) => {
+        if (filename) {
+          let id = path.basename(filename, '.json');
+          console.log(`Style "${id}" changed, updating...`);
+
+          serve_style.remove(serving.styles, id);
+          serve_rendered.remove(serving.rendered, id);
+
+          if (eventType == "add" || eventType == "change") {
+            let item = {
+              style: filename
+            };
+            addStyle(id, item, false, false);
+          }
+        }
+      });
   }
 
   app.get('/styles.json', (req, res, next) => {
     const result = [];
     const query = req.query.key ? (`?key=${req.query.key}`) : '';
     for (const id of Object.keys(serving.styles)) {
-      const styleJSON = serving.styles[id];
+      const styleJSON = serving.styles[id].styleJSON;
       result.push({
         version: styleJSON.version,
         name: styleJSON.name,
@@ -204,7 +256,7 @@ function start(opts) {
 
   const addTileJSONs = (arr, req, type) => {
     for (const id of Object.keys(serving[type])) {
-      const info = clone(serving[type][id]);
+      const info = clone(serving[type][id].tileJSON);
       let path = '';
       if (type === 'rendered') {
         path = `styles/${id}`;
@@ -276,14 +328,14 @@ function start(opts) {
   };
 
   serveTemplate('/$', 'index', req => {
-    const styles = clone(config.styles || {});
+    const styles = clone(serving.styles || {});
     for (const id of Object.keys(styles)) {
       const style = styles[id];
       style.name = (serving.styles[id] || serving.rendered[id] || {}).name;
       style.serving_data = serving.styles[id];
       style.serving_rendered = serving.rendered[id];
       if (style.serving_rendered) {
-        const center = style.serving_rendered.center;
+        const center = style.serving_rendered.tileJSON.center;
         if (center) {
           style.viewer_hash = `#${center[2]}/${center[1].toFixed(5)}/${center[0].toFixed(5)}`;
 
@@ -292,8 +344,8 @@ function start(opts) {
         }
 
         style.xyz_link = utils.getTileUrls(
-          req, style.serving_rendered.tiles,
-          `styles/${id}`, style.serving_rendered.format, opts.publicUrl)[0];
+          req, style.serving_rendered.tileJSON.tiles,
+          `styles/${id}`, style.serving_rendered.tileJSON.format, opts.publicUrl)[0];
       }
     }
     const data = clone(serving.data || {});
@@ -337,7 +389,7 @@ function start(opts) {
 
   serveTemplate('/styles/:id/$', 'viewer', req => {
     const id = req.params.id;
-    const style = clone((config.styles || {})[id]);
+    const style = clone(((serving.styles || {})[id] || {}).styleJSON);
     if (!style) {
       return null;
     }
@@ -355,7 +407,7 @@ function start(opts) {
   */
   serveTemplate('/styles/:id/wmts.xml', 'wmts', req => {
     const id = req.params.id;
-    const wmts = clone((config.styles || {})[id]);
+    const wmts = clone((serving.styles || {})[id]);
     if (!wmts) {
       return null;
     }
