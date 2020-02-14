@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const clone = require('clone');
-const glyphCompose = require('glyph-pbf-composite');
+const glyphCompose = require('@mapbox/glyph-pbf-composite');
 
 
 module.exports.getPublicUrl = (publicUrl, req) => publicUrl || `${req.protocol}://${req.headers.host}/`;

@@ -17,6 +17,7 @@
     "docker": "docker build -f Dockerfile . && docker run --rm -i -p 8080:80 $(docker build -q .)"
   },
   "dependencies": {
+    "@mapbox/glyph-pbf-composite": "0.0.3",
     "@mapbox/mapbox-gl-native": "5.0.2",
     "@mapbox/mapbox-gl-style-spec": "13.9.1",
     "@mapbox/mbtiles": "0.11.0",
@@ -31,7 +32,6 @@
     "cors": "2.8.5",
     "esm": "3.2.25",
     "express": "4.17.1",
-    "glyph-pbf-composite": "0.0.2",
     "handlebars": "4.5.3",
     "http-shutdown": "1.2.1",
     "morgan": "1.9.1",
