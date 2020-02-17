@@ -33,7 +33,7 @@ Alternatively, you can use the `tileserver-gl-light` package instead, which is p
 
 ## Using Docker
 
-An alternative to npm to start the packed software easier is to install [Docker](http://www.docker.com/) on your computer and then run in the directory with the downloaded MBTiles the command:
+An alternative to npm to start the packed software easier is to install [Docker](https://www.docker.com/) on your computer and then run in the directory with the downloaded MBTiles the command:
 
 ```bash
 docker run --rm -it -v $(pwd):/data -p 8080:80 klokantech/tileserver-gl
@@ -45,4 +45,4 @@ On laptop you can use [Docker Kitematic](https://kitematic.com/) and search "til
 
 ## Documentation
 
-You can read full documentation of this project at http://tileserver.readthedocs.io/.
+You can read full documentation of this project at https://tileserver.readthedocs.io/.
