@@ -35,6 +35,11 @@ fs.writeFileSync('light/package.json', str);
 fs.renameSync('light/README_light.md', 'light/README.md');
 fs.renameSync('light/Dockerfile_light', 'light/Dockerfile');
 
+// for Build tileserver-gl-light docker image, don't publish
+if (process.argv.length > 2 && process.argv[2] == "--no-publish") {
+  process.exit(0)
+}
+
 /* PUBLISH */
 
 // tileserver-gl
