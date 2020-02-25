@@ -17,6 +17,7 @@ Getting started
     -b, --bind <address>  Bind address
     -p, --port <port>     Port [8080]
     -C|--no-cors          Disable Cross-origin resource sharing headers
+    -u|--public_url <url> Enable exposing the server on subpaths, not necessarily the root of the domain
     -V, --verbose         More verbose output
     -s, --silent          Less verbose output
     -v, --version         Version info
