@@ -23,8 +23,14 @@ Getting started
     -v, --version         Version info
 
 
-Default styles and configuration
+Default preview style and configuration
 ======
 
-- If no configuration file is specified, the default styles (compatible with openmaptiles) are used.
-- If no mbtiles file is specified (and is not found in the current working directory), an extract is downloaded directly from https://openmaptiles.org/
+- If no configuration file is specified, a default preview style (compatible with openmaptiles) is used.
+- If no mbtiles file is specified (and is not found in the current working directory), a sample file is downloaded (showing the Zurich area)
+
+Reloading configuration
+======
+
+It is possible to reload the configuration file without restarting the whole process by sending a SIGHUP signal to the node process.
+However, this does not currently work when running the tileserver-gl docker container (the signal is not passed to the subprocess, see https://github.com/maptiler/tileserver-gl/issues/420#issuecomment-597507663).
