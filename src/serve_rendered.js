@@ -278,7 +278,7 @@ module.exports = {
           }
 
           // Fix semi-transparent outlines on raw, premultiplied input
-          // https://github.com/klokantech/tileserver-gl/issues/350#issuecomment-477857040
+          // https://github.com/maptiler/tileserver-gl/issues/350#issuecomment-477857040
           for (var i = 0; i < data.length; i += 4) {
             var alpha = data[i + 3];
             var norm = alpha / 255;

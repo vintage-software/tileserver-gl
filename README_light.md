@@ -1,6 +1,6 @@
 # TileServer GL light
 [![Build Status](https://travis-ci.org/maptiler/tileserver-gl.svg?branch=master)](https://travis-ci.org/maptiler/tileserver-gl)
-[![Docker Hub](https://img.shields.io/badge/docker-hub-blue.svg)](https://hub.docker.com/r/klokantech/tileserver-gl/)
+[![Docker Hub](https://img.shields.io/badge/docker-hub-blue.svg)](https://hub.docker.com/r/maptiler/tileserver-gl/)
 
 Vector maps with GL styles. Map tile server for Mapbox Android, iOS, GL JS, Leaflet, OpenLayers, etc. without server side rendering.
 

@@ -7,12 +7,12 @@ Docker
 
 When running docker image, no special installation is needed -- the docker will automatically download the image if not present.
 
-Just run ``docker run --rm -it -v $(pwd):/data -p 8080:80 klokantech/tileserver-gl``.
+Just run ``docker run --rm -it -v $(pwd):/data -p 8080:80 maptiler/tileserver-gl``.
 
 Additional options (see :doc:`/usage`) can be passed to the TileServer GL by appending them to the end of this command. You can, for example, do the following:
 
-* ``docker run ... klokantech/tileserver-gl --mbtiles my-tiles.mbtiles`` -- explicitly specify which mbtiles to use (if you have more in the folder)
-* ``docker run ... klokantech/tileserver-gl --verbose`` -- to see the default config created automatically
+* ``docker run ... maptiler/tileserver-gl --mbtiles my-tiles.mbtiles`` -- explicitly specify which mbtiles to use (if you have more in the folder)
+* ``docker run ... maptiler/tileserver-gl --verbose`` -- to see the default config created automatically
 
 npm
 ===
