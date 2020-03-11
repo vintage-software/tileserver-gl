@@ -227,7 +227,9 @@ function start(opts) {
           console.log(`Style "${id}" changed, updating...`);
 
           serve_style.remove(serving.styles, id);
-          serve_rendered.remove(serving.rendered, id);
+          if (serve_rendered) {
+            serve_rendered.remove(serving.rendered, id);
+          }
 
           if (eventType == "add" || eventType == "change") {
             let item = {
