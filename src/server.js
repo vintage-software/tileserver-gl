@@ -362,7 +362,7 @@ function start(opts) {
       if (!data_.is_vector) {
         if (center) {
           const centerPx = mercator.px([center[0], center[1]], center[2]);
-          data_.thumbnail = `${center[2]}/${Math.floor(centerPx[0] / 256)}/${Math.floor(centerPx[1] / 256)}.${data_.format}`;
+          data_.thumbnail = `${center[2]}/${Math.floor(centerPx[0] / 256)}/${Math.floor(centerPx[1] / 256)}.${data_.tileJSON.format}`;
         }
 
         data_.xyz_link = utils.getTileUrls(
