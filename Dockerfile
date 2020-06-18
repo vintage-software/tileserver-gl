@@ -40,12 +40,12 @@ RUN export DEBIAN_FRONTEND=noninteractive \
       libprotobuf17 \
       libxxf86vm1 \
       xvfb \
-      x11-utils \
+      xauth \
   && apt-get -y --purge autoremove \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /usr/src/app /usr/src/app
+COPY --from=builder /usr/src/app /app
 
 ENV NODE_ENV="production"
 ENV CHOKIDAR_USEPOLLING=1
@@ -56,4 +56,6 @@ WORKDIR /data
 
 EXPOSE 80
 
-ENTRYPOINT ["/usr/src/app/run.sh"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+
+CMD ["-p", "80"]
