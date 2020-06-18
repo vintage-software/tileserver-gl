@@ -13,15 +13,11 @@ RUN export DEBIAN_FRONTEND=noninteractive \
       libgbm-dev \
       libllvm7 \
       libprotobuf-dev \
-      libxxf86vm-dev \
-      xvfb \
-      x11-utils \
   && apt-get -y --purge autoremove \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-#RUN mkdir -p /usr/src/app
-COPY / /usr/src/app
+COPY . /usr/src/app
 
 ENV NODE_ENV="production"
 
@@ -33,12 +29,8 @@ FROM node:10-buster-slim AS final
 RUN export DEBIAN_FRONTEND=noninteractive \
   && apt-get -qq update \
   && apt-get -y --no-install-recommends install \
-      curl \
-      libcairo2 \
       libgles2-mesa \
       libegl1 \
-      libprotobuf17 \
-      libxxf86vm1 \
       xvfb \
       xauth \
   && apt-get -y --purge autoremove \
