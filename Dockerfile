@@ -54,8 +54,10 @@ ENV CHOKIDAR_INTERVAL=500
 VOLUME /data
 WORKDIR /data
 
-EXPOSE 80
+EXPOSE 8000
+
+USER node:node
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
-CMD ["-p", "80"]
+CMD ["-p", "8000"]
