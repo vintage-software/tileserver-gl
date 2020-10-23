@@ -4,7 +4,9 @@ Configuration file
 
 The configuration file defines the behavior of the application. It's a regular JSON file.
 
-Example::
+Example:
+
+.. code-block:: json
 
   {
     "options": {
