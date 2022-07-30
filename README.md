@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.org/maptiler/tileserver-gl.svg?branch=master)](https://travis-ci.org/maptiler/tileserver-gl)
 [![Docker Hub](https://img.shields.io/badge/docker-hub-blue.svg)](https://hub.docker.com/r/maptiler/tileserver-gl/)
 
-Vector and raster maps with GL styles. Server side rendering by Mapbox GL Native. Map tile server for Mapbox GL JS, Android, iOS, Leaflet, OpenLayers, GIS via WMTS, etc.
+Vector and raster maps with GL styles. Server-side rendering by Mapbox GL Native. Map tile server for MapLibre GL JS, Android, iOS, Leaflet, OpenLayers, GIS via WMTS, etc.
 
 ## Get Started
 
@@ -17,7 +17,7 @@ Install `tileserver-gl` with server-side raster rendering of vector tiles with n
 npm install -g tileserver-gl
 ```
 
-Now download vector tiles from [OpenMapTiles](https://openmaptiles.org/downloads/).
+Now download vector tiles from [OpenMapTiles](https://data.maptiler.com/downloads/planet/).
 
 ```bash
 curl -o zurich_switzerland.mbtiles https://[GET-YOUR-LINK]/extracts/zurich_switzerland.mbtiles
@@ -41,8 +41,12 @@ docker run --rm -it -v $(pwd):/data -p 8080:80 maptiler/tileserver-gl
 
 This will download and start a ready to use container on your computer and the maps are going to be available in webbrowser on localhost:8080.
 
-On laptop you can use [Docker Kitematic](https://kitematic.com/) and search "tileserver-gl" and run it, then drop in the 'data' folder the MBTiles.
+On laptop, you can use [Docker Kitematic](https://kitematic.com/) and search "tileserver-gl" and run it, then drop in the 'data' folder the MBTiles.
 
 ## Documentation
 
-You can read full documentation of this project at https://tileserver.readthedocs.io/.
+You can read the full documentation of this project at https://tileserver.readthedocs.io/.
+
+## Alternative
+
+Discover MapTiler Server if you need a [map server with easy setup and user-friendly interface](https://www.maptiler.com/server/).
