@@ -28,7 +28,7 @@ delete packageJson.dependencies['sharp'];
 delete packageJson.optionalDependencies;
 delete packageJson.devDependencies;
 
-packageJson.engines.node = '>= 14.13.0';
+packageJson.engines.node = '>= 10';
 
 var str = JSON.stringify(packageJson, undefined, 2);
 fs.writeFileSync('light/package.json', str);
