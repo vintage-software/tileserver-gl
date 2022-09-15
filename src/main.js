@@ -70,25 +70,25 @@ program
         '-v, --version',
     );
 program.parse(process.argv);
-const options = program.opts();
+const opts = program.opts();
 
 console.log(`Starting ${packageJson.name} v${packageJson.version}`);
 
 const startServer = (configPath, config) => {
-  let publicUrl = options.public_url;
+  let publicUrl = opts.public_url;
   if (publicUrl && publicUrl.lastIndexOf('/') !== publicUrl.length - 1) {
     publicUrl += '/';
   }
   return require('./server')({
     configPath: configPath,
     config: config,
-    bind: options.bind,
-    port: options.port,
-    cors: options.cors,
-    verbose: options.verbose,
-    silent: options.silent,
-    logFile: options.log_file,
-    logFormat: options.log_format,
+    bind: opts.bind,
+    port: opts.port,
+    cors: opts.cors,
+    verbose: opts.verbose,
+    silent: opts.silent,
+    logFile: opts.log_file,
+    logFormat: opts.log_format,
     publicUrl: publicUrl
   });
 };
