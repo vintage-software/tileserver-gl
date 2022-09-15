@@ -18,19 +18,16 @@
 
 .maplibregl-inspect_property {
   display: table-row;
-  line-height: 120%;
 }
 
 .maplibregl-inspect_property-value {
-  padding-bottom: 6px;
   display: table-cell;
-  word-break: break-all;
+
 }
 
 .maplibregl-inspect_property-name {
   display: table-cell;
   padding-right: 10px;
-  word-break: break-all;
 }
 
 .maplibregl-ctrl-inspect {
