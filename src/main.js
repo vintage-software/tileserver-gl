@@ -17,76 +17,78 @@ if (args.length >= 3 && args[2][0] !== '-') {
   args.splice(2, 0, '--mbtiles');
 }
 
-const opts = require('commander')
-  .description('tileserver-gl startup options')
-  .usage('tileserver-gl [mbtiles] [options]')
-  .option(
-    '--mbtiles <file>',
-    'MBTiles file (uses demo configuration);\n' +
-    '\t                  ignored if the configuration file is also specified'
-  )
-  .option(
-    '-c, --config <file>',
-    'Configuration file [config.json]',
-    'config.json'
-  )
-  .option(
-    '-b, --bind <address>',
-    'Bind address'
-  )
-  .option(
-    '-p, --port <port>',
-    'Port [8080]',
-    8080,
-    parseInt
-  )
-  .option(
-    '-C|--no-cors',
-    'Disable Cross-origin resource sharing headers'
-  )
-  .option(
-    '-u|--public_url <url>',
-    'Enable exposing the server on subpaths, not necessarily the root of the domain'
-  )
-  .option(
-    '-V, --verbose',
-    'More verbose output'
-  )
-  .option(
-    '-s, --silent',
-    'Less verbose output'
-  )
-  .option(
-    '-l|--log_file <file>',
-    'output log file (defaults to standard out)'
-  )
-  .option(
-    '-f|--log_format <format>',
-    'define the log format:  https://github.com/expressjs/morgan#morganformat-options'
-  )
-  .version(
-    packageJson.version,
-    '-v, --version'
-  )
-  .parse(args);
+const { program } = require('commander');
+program
+    .description('tileserver-gl startup options')
+    .usage('tileserver-gl [mbtiles] [options]')
+    .option(
+        '--mbtiles <file>',
+        'MBTiles file (uses demo configuration);\n' +
+    '\t                  ignored if the configuration file is also specified',
+    )
+    .option(
+        '-c, --config <file>',
+        'Configuration file [config.json]',
+        'config.json',
+    )
+    .option(
+        '-b, --bind <address>',
+        'Bind address',
+    )
+    .option(
+        '-p, --port <port>',
+        'Port [8080]',
+        8080,
+        parseInt,
+    )
+    .option(
+        '-C|--no-cors',
+        'Disable Cross-origin resource sharing headers',
+    )
+    .option(
+        '-u|--public_url <url>',
+        'Enable exposing the server on subpaths, not necessarily the root of the domain',
+    )
+    .option(
+        '-V, --verbose',
+        'More verbose output',
+    )
+    .option(
+        '-s, --silent',
+        'Less verbose output',
+    )
+    .option(
+        '-l|--log_file <file>',
+        'output log file (defaults to standard out)',
+    )
+    .option(
+        '-f|--log_format <format>',
+        'define the log format:  https://github.com/expressjs/morgan#morganformat-options',
+    )
+    .version(
+        packageJson.version,
+        '-v, --version',
+    );
+program.parse(process.argv);
+const options = program.opts();
 
 console.log(`Starting ${packageJson.name} v${packageJson.version}`);
 
 const startServer = (configPath, config) => {
-  let publicUrl = opts.public_url;
+  let publicUrl = options.public_url;
   if (publicUrl && publicUrl.lastIndexOf('/') !== publicUrl.length - 1) {
     publicUrl += '/';
   }
   return require('./server')({
     configPath: configPath,
     config: config,
-    bind: opts.bind,
-    port: opts.port,
-    cors: opts.cors,
-    verbose: opts.verbose,
-    silent: opts.silent,
-    logFile: opts.log_file,
-    logFormat: opts.log_format,
+    bind: options.bind,
+    port: options.port,
+    cors: options.cors,
+    verbose: options.verbose,
+    silent: options.silent,
+    logFile: options.log_file,
+    logFormat: options.log_format,
     publicUrl: publicUrl
   });
 };
