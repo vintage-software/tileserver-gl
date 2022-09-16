@@ -61,5 +61,3 @@ EXPOSE 80
 USER node:node
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-
-CMD ["-p", "80"]
