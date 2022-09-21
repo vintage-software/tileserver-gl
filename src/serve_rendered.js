@@ -229,7 +229,7 @@ module.exports = {
 
     const app = express().disable('x-powered-by');
 
-    const respondImage = (item, z, lon, lat, bearing, pitch, width, height, scale, format, res, next, opt_overlay, opt_mode="tile") => {
+    const respondImage = (item, z, lon, lat, bearing, pitch, width, height, scale, format, res, next, opt_overlay, opt_mode='tile') => {
       if (Math.abs(lon) > 180 || Math.abs(lat) > 85.06 ||
         lon !== lon || lat !== lat) {
         return res.status(400).send('Invalid center');
@@ -430,7 +430,7 @@ module.exports = {
         const path = extractPathFromQuery(req.query, transformer);
         const overlay = renderOverlay(z, x, y, bearing, pitch, w, h, scale, path, req.query);
 
-        return respondImage(item, z, x, y, bearing, pitch, w, h, scale, format, res, next, overlay, "static");
+        return respondImage(item, z, x, y, bearing, pitch, w, h, scale, format, res, next, overlay, 'static');
       });
 
       const serveBounds = (req, res, next) => {
@@ -469,7 +469,7 @@ module.exports = {
 
         const path = extractPathFromQuery(req.query, transformer);
         const overlay = renderOverlay(z, x, y, bearing, pitch, w, h, scale, path, req.query);
-        return respondImage(item, z, x, y, bearing, pitch, w, h, scale, format, res, next, overlay, "static");
+        return respondImage(item, z, x, y, bearing, pitch, w, h, scale, format, res, next, overlay, 'static');
       };
 
       const boundsPattern =
@@ -542,7 +542,7 @@ module.exports = {
 
         const overlay = renderOverlay(z, x, y, bearing, pitch, w, h, scale, path, req.query);
 
-        return respondImage(item, z, x, y, bearing, pitch, w, h, scale, format, res, next, overlay, "static");
+        return respondImage(item, z, x, y, bearing, pitch, w, h, scale, format, res, next, overlay, 'static');
       });
     }
 
@@ -811,8 +811,8 @@ module.exports = {
         const j = Math.min(maxPoolSizes.length - 1, s - 1);
         const minPoolSize = minPoolSizes[i];
         const maxPoolSize = Math.max(minPoolSize, maxPoolSizes[j]);
-        map.renderers[s] = createPool(s, "tile", minPoolSize, maxPoolSize);
-        map.renderers_static[s] = createPool(s, "static", minPoolSize, maxPoolSize);
+        map.renderers[s] = createPool(s, 'tile', minPoolSize, maxPoolSize);
+        map.renderers_static[s] = createPool(s, 'static', minPoolSize, maxPoolSize);
       }
     });
 
