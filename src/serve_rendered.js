@@ -247,7 +247,7 @@ module.exports = {
       }
 
       let pool;
-      if (opt_mode == 'tile') {
+      if (opt_mode === 'tile') {
         pool = item.map.renderers[scale];
       } else {
         pool = item.map.renderers_static[scale];
@@ -469,7 +469,7 @@ module.exports = {
 
         const path = extractPathFromQuery(req.query, transformer);
         const overlay = renderOverlay(z, x, y, bearing, pitch, w, h, scale, path, req.query);
-        return respondImage(item, z, x, y, bearing, pitch, w, h, scale, format, res, next, overlay);
+        return respondImage(item, z, x, y, bearing, pitch, w, h, scale, format, res, next, overlay, "static");
       };
 
       const boundsPattern =
@@ -542,7 +542,7 @@ module.exports = {
 
         const overlay = renderOverlay(z, x, y, bearing, pitch, w, h, scale, path, req.query);
 
-        return respondImage(item, z, x, y, bearing, pitch, w, h, scale, format, res, next, overlay);
+        return respondImage(item, z, x, y, bearing, pitch, w, h, scale, format, res, next, overlay, "static");
       });
     }
 
