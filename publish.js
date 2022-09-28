@@ -16,8 +16,8 @@ require('child_process').execSync('rsync -av --exclude="light" --exclude=".git" 
 });
 
 // PATCH `package.json`
-var fs = require('fs');
-var packageJson = require('./package');
+const fs = require('fs');
+const packageJson = require('./package');
 
 packageJson.name += '-light';
 packageJson.description = 'Map tile server for JSON GL styles - serving vector tiles';
@@ -30,15 +30,15 @@ delete packageJson.devDependencies;
 
 packageJson.engines.node = '>= 10';
 
-var str = JSON.stringify(packageJson, undefined, 2);
+const str = JSON.stringify(packageJson, undefined, 2);
 fs.writeFileSync('light/package.json', str);
 fs.renameSync('light/README_light.md', 'light/README.md');
 fs.renameSync('light/Dockerfile_light', 'light/Dockerfile');
 fs.renameSync('light/docker-entrypoint_light.sh', 'light/docker-entrypoint.sh');
 
 // for Build tileserver-gl-light docker image, don't publish
-if (process.argv.length > 2 && process.argv[2] == "--no-publish") {
-  process.exit(0)
+if (process.argv.length > 2 && process.argv[2] == '--no-publish') {
+  process.exit(0);
 }
 
 /* PUBLISH */
