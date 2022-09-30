@@ -420,7 +420,12 @@ export function server(opts) {
     }
     wmts.id = id;
     wmts.name = (serving.styles[id] || serving.rendered[id]).name;
-    wmts.baseUrl = `${req.get('X-Forwarded-Protocol') ? req.get('X-Forwarded-Protocol') : req.protocol}://${req.get('host')}`;
+    if (opts.publicUrl) {
+      wmts.baseUrl = opts.publicUrl;
+    }
+    else {
+      wmts.baseUrl = `${req.get('X-Forwarded-Protocol') ? req.get('X-Forwarded-Protocol') : req.protocol}://${req.get('host')}/`;
+    }
     return wmts;
   });
 
