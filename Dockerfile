@@ -75,7 +75,7 @@ COPY . /usr/src/app
 VOLUME /data
 WORKDIR /data
 
-EXPOSE 80
+EXPOSE 8080
 
 USER node:node
 
